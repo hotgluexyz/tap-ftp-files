@@ -45,7 +45,7 @@ def download(args):
     config = args.config
     host = config.get('host')
     target_dir = config.get('target_dir')
-    tables = config.get('tables')
+    file_groups = config.get('file_groups')
     incremental_mode = config.get('incremental_mode') == True
 
     conn = connection(config)
@@ -56,9 +56,9 @@ def download(args):
         start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=pytz.utc)
 
     
-    for table in tables:
-        remote_path = table.get('remote_path')
-        search_pattern = table.get('search_pattern', "") # Regex
+    for file_group in file_groups:
+        remote_path = file_group.get('remote_path')
+        search_pattern = file_group.get('search_pattern', "") # Regex
 
 
         logger.info(f"Downloading: data from {remote_path} -> {target_dir}")

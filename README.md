@@ -10,7 +10,7 @@ The following config values are expected:
         "username": "YOUR_USER",
         "password": "YOUR_PASS",
         "incremental_mode": true,
-        "tables": [
+        "file_groups": [
             {
                 "remote_path": "DIRECTORY_TO_EXPORT",
                 "search_pattern": "REGEX_FILTER_FOR_FIES_TO_EXPORT",
