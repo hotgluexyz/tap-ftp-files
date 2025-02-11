@@ -10,7 +10,10 @@ setup(
     url='https://hotglue.xyz',
     classifiers=['Programming Language :: Python :: 3 :: Only'],
     py_modules=['tap_ftp_files'],
-    install_requires=[],
+    install_requires=[
+        'argparse==1.4.0',
+        'pytz==2025.1'
+    ],
     entry_points='''
         [console_scripts]
         tap-ftp-files=tap_ftp_files:main

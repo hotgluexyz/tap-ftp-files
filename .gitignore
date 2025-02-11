@@ -104,3 +104,5 @@ singer-check-tap-data
 state.json
 
 tmp/
+.vscode
+.venv
