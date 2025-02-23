@@ -76,7 +76,7 @@ def download(args):
                 os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
                 with open(local_file_path, 'wb') as local_file:
                     local_file.write(file_handle.read())
-
+            
     logger.info(f"Data downloaded.")
 
     # Write start_date to state file
