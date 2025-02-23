@@ -49,7 +49,6 @@ def download(args):
     incremental_mode = config.get('incremental_mode') == True
 
     conn = connection(config)
-
     if incremental_mode:
         if state.get('start_date'):
             start_date = state.get('start_date')
