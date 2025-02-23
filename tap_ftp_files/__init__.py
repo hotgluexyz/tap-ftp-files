@@ -43,15 +43,21 @@ def parse_args():
 def download(args):
     logger.debug(f"Downloading data...")
     config = args.config
-    host = config.get('host')
+    state = args.state or dict()
     target_dir = config.get('target_dir')
     file_groups = config.get('file_groups')
     incremental_mode = config.get('incremental_mode') == True
 
     conn = connection(config)
-    
-    start_date = config.get('start_date') if incremental_mode else None
-    
+
+    if incremental_mode:
+        if state.get('start_date'):
+            start_date = state.get('start_date')
+        elif incremental_mode:
+            start_date = config.get('start_date')
+    else:
+        start_date = None
+
     if start_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=pytz.utc)
 
@@ -70,9 +76,17 @@ def download(args):
                 local_file_path = os.path.join(target_dir, os.path.basename(file['filepath']))
                 os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
                 with open(local_file_path, 'wb') as local_file:
-                    local_file.write(file_handle.read())
-            
+                    local_file.write(file_handle.read())   
     logger.info(f"Data downloaded.")
+
+    # Write start_date to state file
+    
+    start_date = datetime.utcnow().replace(tzinfo=pytz.utc)
+    state['start_date'] = start_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    with open(args.state_path, 'w') as f:
+        json.dump(state, f)
+
+    logger.info(f"State file updated with start_date: {start_date}")
 
 def main():
     args = parse_args()
