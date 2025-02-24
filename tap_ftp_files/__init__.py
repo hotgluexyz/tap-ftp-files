@@ -52,7 +52,7 @@ def download(args):
     if incremental_mode:
         if state.get('start_date'):
             start_date = state.get('start_date')
-        elif incremental_mode:
+        else:
             start_date = config.get('start_date')
     else:
         start_date = None

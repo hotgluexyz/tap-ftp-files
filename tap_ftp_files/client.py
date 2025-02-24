@@ -145,7 +145,7 @@ class FTPConnection:
                         "Cannot read m_time for file %s, defaulting to current epoch time",
                         os.path.join(prefix, file_attr),
                     )
-                    last_modified = datetime.utcnow()
+                    last_modified = datetime.now().replace(tzinfo=pytz.UTC)
                 else:
                     last_modified = datetime.strptime(last_modified, "%Y%m%d%H%M%S")
                 files.append(
