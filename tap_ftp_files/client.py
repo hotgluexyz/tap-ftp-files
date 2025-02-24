@@ -136,22 +136,14 @@ class FTPConnection:
 
                 try:
                     last_modified = self.ftp.voidcmd(f"MDTM {file_attr}")[4:].strip()
+                    last_modified = datetime.strptime(last_modified, "%Y%m%d%H%M%S")
                 except:
                     last_modified = None
 
-                if last_modified is None:
-
-                    logger.warning(
-                        "Cannot read m_time for file %s, defaulting to current epoch time",
-                        os.path.join(prefix, file_attr),
-                    )
-                    last_modified = datetime.now().replace(tzinfo=pytz.UTC)
-                else:
-                    last_modified = datetime.strptime(last_modified, "%Y%m%d%H%M%S")
                 files.append(
                     {
                         "filepath": f"/{file_attr}",
-                        "last_modified": last_modified.replace(tzinfo=pytz.UTC),
+                        "last_modified": last_modified,
                     }
                 )
 
@@ -187,7 +179,7 @@ class FTPConnection:
 
         if modified_since is not None:
             matching_files = [
-                f for f in matching_files if f["last_modified"] > modified_since
+                f for f in matching_files if not f["last_modified"] or f["last_modified"] > modified_since
             ]
 
         return matching_files

@@ -58,7 +58,9 @@ def download(args):
         start_date = None
 
     if start_date:
-        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=pytz.utc)
+        if start_date.endswith('Z'):
+            start_date = start_date[:-1]
+        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%f')
 
     
     for file_group in file_groups:
@@ -80,13 +82,16 @@ def download(args):
     logger.info(f"Data downloaded.")
 
     # Write start_date to state file
+    files_with_last_modified = [f for f in files if f['last_modified'] is not None]
+    if files_with_last_modified:
     
-    start_date = datetime.utcnow().replace(tzinfo=pytz.utc)
-    state['start_date'] = start_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    with open(args.state_path, 'w') as f:
-        json.dump(state, f)
+        last_modified = max([f['last_modified'] for f in files_with_last_modified])
 
-    logger.info(f"State file updated with start_date: {start_date}")
+        state['start_date'] = last_modified.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        with open(args.state_path, 'w') as f:
+            json.dump(state, f)
+
+        logger.info(f"State file updated with start_date: {last_modified}")
 
 def main():
     args = parse_args()
