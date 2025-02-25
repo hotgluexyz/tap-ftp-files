@@ -43,17 +43,24 @@ def parse_args():
 def download(args):
     logger.debug(f"Downloading data...")
     config = args.config
-    host = config.get('host')
+    state = args.state or dict()
     target_dir = config.get('target_dir')
     file_groups = config.get('file_groups')
     incremental_mode = config.get('incremental_mode') == True
 
     conn = connection(config)
-    
-    start_date = config.get('start_date') if incremental_mode else None
-    
+    if incremental_mode:
+        if state.get('start_date'):
+            start_date = state.get('start_date')
+        else:
+            start_date = config.get('start_date')
+    else:
+        start_date = None
+
     if start_date:
-        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=pytz.utc)
+        if start_date.endswith('Z'):
+            start_date = start_date[:-1]
+        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%f')
 
     
     for file_group in file_groups:
@@ -73,6 +80,18 @@ def download(args):
                     local_file.write(file_handle.read())
             
     logger.info(f"Data downloaded.")
+
+    # Write start_date to state file
+    files_with_last_modified = [f for f in files if f['last_modified'] is not None]
+    if files_with_last_modified:
+    
+        last_modified = max([f['last_modified'] for f in files_with_last_modified])
+
+        state['start_date'] = last_modified.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        with open(args.state_path, 'w') as f:
+            json.dump(state, f)
+
+        logger.info(f"State file updated with start_date: {last_modified}")
 
 def main():
     args = parse_args()
